@@ -1,0 +1,10 @@
+[package]
+name = "example-importer-search"
+version = "0.1.0"
+authors = ["gio"]
+
+[dependencies]
+rs-es = "0.9.0"
+serde = "0.9.0"
+serde_derive = "0.9.0"
+serde_json = "0.9.0"
