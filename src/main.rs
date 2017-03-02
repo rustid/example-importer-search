@@ -2,6 +2,7 @@ extern crate example_importer_search;
 extern crate rs_es;
 
 use rs_es::operations::index;
+use rs_es::operations::bulk::Action;
 use rs_es::Client;
 
 fn make_client(url: &str) -> rs_es::Client {
@@ -11,7 +12,7 @@ fn make_client(url: &str) -> rs_es::Client {
 
 fn import() -> Result<bool, String>{
     //create elasticsearch client
-    let mut client = make_client("http://localhost:9200");
+    let mut client = make_client("http://192.168.100.16:9200");
 
     //prepare data
     let data = example_importer_search::AddressDocument::new().with_address("Kota kediri").with_name("Gian Giovani");
@@ -34,11 +35,29 @@ fn import() -> Result<bool, String>{
     }
 }
 
-fn bulk_import() ->Result<bool,String> {
-    Ok(true)
+fn bulk_import() {
+    let mut client = make_client("http://192.168.100.16:9200");
+
+    let mut actions: Vec<Action<example_importer_search::AddressDocument>> = vec![];
+    actions.push(Action::index(example_importer_search::AddressDocument::new()
+                .with_address("Kota Malang")
+                .with_name("Tumenggung Sudarsono")
+                .with_id(2))
+                .with_id("2")
+                .with_index("address").with_doc_type("default"));
+
+    actions.push(Action::index(example_importer_search::AddressDocument::new()
+                .with_address("Kota Yogyakarta")
+                .with_name("Slamet Raharjo")
+                .with_id(2))
+                .with_id("3")
+                .with_index("address").with_doc_type("default"));
+
+    client.bulk(&actions).send().unwrap();
 }
 
 fn main() {
+    bulk_import();
     match import() {
         Ok(_) => {
             println!("imported");
